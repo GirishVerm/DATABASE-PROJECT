@@ -9,10 +9,9 @@ from tabulate import tabulate
 import qrcode
 from PIL import Image
 import mysql.connector
-for k in 'fun':
-    host1=input("Please Enter the HOST NAME (commonly "loacalhost"): ")
-    user1=input("Please Enter the USER NAME                        : ")
-    pass1=input("Please Enter the PASSWORD                         : ")
+host1=input("Please Enter the HOST NAME (commonly 'loacalhost'): ")
+user1=input("Please Enter the USER NAME                        : ")
+pass1=input("Please Enter the PASSWORD                         : ")
     
 con=mysql.connector.connect(host=host1, user=user1, password=pass1)
 if con.is_connected:
@@ -339,7 +338,7 @@ def delete():
 
 
 
-print('\n \n \t \t \t \t \t \t \t \t ',' ', "Welcome To FCC Bank, G.G Nagar Branch, Ranchi")
+print('\n \n \t \t \t \t \t \t \t \t ',' ', "Welcome To FCC Bank")
 print('\n \nPlease select the Task to Perform')
 a="=>1.  OPEN A NEW ACCOUNT \n\n=>2.  FIND DETAILS \n\n=>3.  CHANGE DETAILS \n\n=>4.  TRANSACTION MENU\n\n=>5.  SHOW ALL ACCOUNTS \n\n=>6.  MAKE QR.CODE FOR ACCOUNT \n\n=>7.  REMOVE CLIENT INFO \n\n=>8.  ENTER LOAN MENU \n\n=>9.  VIEW BANKING OPTIONS AGAIN \n\n=>10. ENTER FD MENU \n\n=>11.  EXIT SYSTEM"
 print(a)
