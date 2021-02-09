@@ -1,0 +1,395 @@
+import math 
+import datetime #module used for date and time
+from datetime import date
+from datetime import time
+import time
+from tabulate import tabulate
+import qrcode
+from PIL import Image
+import mysql.connector
+
+con=mysql.connector.connect(host="localhost", user="root", password="limejuice")
+if con.is_connected:
+    print('\t \t \t \t \t \t \t \t \t CONNECTION TO DATABASE SUCCESFUL')
+cur=con.cursor()
+cur.execute(" create database if not exists csprojectfinal")
+cur.execute(" use csprojectfinal")
+cur=con.cursor()
+query="create table if not exists BANK ( ACCOUNT integer(6) primary key, FIRST_NAME varchar(20), LAST_NAME varchar(20), CONTACT integer(8), BALANCE decimal(20,4), DEPOSIT decimal(20,4), DEPOSIT_DATE date, DEPOSIT_TIME varchar(20), WITHDRAWAL decimal(20,4), WITHDRAWAL_DATE date, WITHDRAWAL_TIME varchar(20))"
+cur.execute(query)
+con.commit()
+print('\n \n \t \t \t \t \t \t \t \t \t ',"SYSTEM READY TO PERFORM TASKS")
+
+cur=con.cursor()
+def insert_data():                          #FUNCTION TO ADD NEW CLIENT INFO TO THE SYSTEM
+    print("NEW RECORD ")
+    f=0
+    a=date.today()
+    t = time.localtime()
+    b= time.strftime("%H:%M:%S", t)
+    c='0000-00-00'
+    d='-'
+    print(' ')
+    n = input("Enter ACCOUNT NO. \t\t:")
+    f_n = input("Enter FIRST NAME \t\t:")
+    l_n = input("Enter LAST NAME \t\t:")
+    q = int(input("Enter CELL NO(max:8 no) \t:"))
+    p = float(input("Enter AMOUNT TO DEPOSIT \t:"))
+    cur = con.cursor()
+    query = "insert into BANK values({},'{}','{}',{},{},{},'{}','{}',{},'{}','{}')".format(n, f_n, l_n, q, p, p, a, b, f, c , d)
+    cur.execute(query)
+    con.commit()
+    
+
+def transaction():
+    a=date.today()
+    t = time.localtime()
+    b= time.strftime("%H:%M:%S", t)
+    p=int(input('=>1. Deposit to account\n=>2. Withdraw from account\nEnter Task :'))
+    acc=int(input("\nENTER ACCOUNT NO. FOR WHICH INFO IS TO BE UPDATED       :"))    
+    strnew = float(input('ENTER AMOUNT  \t\t\t\t\t\t:'))
+    cur = con.cursor()
+    if p==1:
+        cur.execute("update Bank set balance=balance+{}, deposit={}, deposit_date='{}', deposit_time='{}' where account={} ".format(strnew, strnew, a, b, acc))
+        con.commit()
+    elif p==2:
+        cur.execute("update Bank set balance=balance-{}, withdrawal={}, withdrawal_date='{}', withdrawal_time='{}' where account={} ".format(strnew, strnew, a, b, acc))
+        con.commit()
+    else:
+        print('invalid option')
+    cur = con.cursor()
+    cur.execute("select * from BANK where account={} ".format(acc))
+    show=cur.fetchall()
+    print('UPDATED BANK DETAILS')
+    print(tabulate(show,  headers=[" Accountno.", "First name", "Last name", "Contact", "Balance", "Deposit", "Deposit Date", "Deposit time", "Withdrawal", "Withdrawal Date", "Withdrawal Time"],tablefmt=("fancy_grid"), colalign=("center",), stralign=("center")))
+
+#cur=con.cursor()
+
+
+
+def update(f):                               #FUNCTTION TO UPDATE A VALUE IN THE SYSTEM
+                   
+    for k in range(f):
+        cur=con.cursor()
+        cur.execute(" select * from BANK")
+        s=cur.fetchall()
+        print(tabulate(s,  headers=[" Accountno.", "First name", "Last name", "Contact", "Balance", "Deposit", "Deposit Date", "Deposit time", "Withdrawal", "Withdrawal Date", "Withdrawal Time"],tablefmt=("fancy_grid"), colalign=("center",), stralign=("center")))
+        acc=int(input("ENTER ACCOUNT NO. FOR WHICH INFO IS TO BE UPDATED ===>   "))
+        str1 = input('Enter the FIELD to be changed \t:')
+        cur=con.cursor()
+        cur.execute(" select {} from bank where account={} ".format(str1, acc))
+        str2=cur.fetchall()
+        for k in str2:
+            for m in k:
+                f=m    
+        strnew = input('Enter new info \t\t\t:')
+        cur = con.cursor()
+        cur.execute("update Bank set {}='{}' where {}='{}' and account={} ".format(str1, strnew, str1, f, acc))
+        con.commit()
+        cur.execute("select * from BANK where account={} ".format(acc))
+        show=cur.fetchall()
+        print('NEW CLIENT INFO''\n')
+        print(tabulate(show,  headers=[" Accountno.", "First name", "Last name", "Contact", "Balance", "Deposit", "Deposit Date", "Deposit time", "Withdrawal", "Withdrawal Date", "Withdrawal Time"],tablefmt=("fancy_grid"), colalign=("center",), stralign=("center")))
+
+cur = con.cursor()
+def search(s):                               #FUNCTION TO SEARCH FOR A SPECIFIC CLIENT
+    for k in range(s):
+        print('1. Search using first name\n2. Search using account number')
+        crit = int(input('Enter Criteria for search \t : '))
+        if crit==1:
+            name = input('Enter First Name of the client \t : ')
+            cur = con.cursor()
+            cur.execute("SELECT * from BANK WHERE FIRST_NAME='{}' ".format(name))
+            row=cur.fetchall()
+            print(tabulate(row,  headers=[" Accountno.", "First name", "Last name", "Contact", "Balance", "Deposit", "Deposit Date", "Deposit time", "Withdrawal", "Withdrawal Date", "Withdrawal Time"],tablefmt=("fancy_grid"), colalign=("center",), stralign=("center")))
+
+        elif crit==2:
+            number = int(input('Enter ACCOUNT no.. \t\t : '))
+            cur = con.cursor()
+            cur.execute("SELECT * from BANK WHERE ACCOUNT={}".format(number))
+            row=cur.fetchall()
+            print(tabulate(row,  headers=[" Accountno.", "First name", "Last name", "Contact", "Balance", "Deposit", "Deposit Date", "Deposit time", "Withdrawal", "Withdrawal Date", "Withdrawal Time"],tablefmt=("fancy_grid"), colalign=("center",), stralign=("center")))
+
+
+
+
+cur=con.cursor()
+def Display():                               #FUNCTION TO DISPLAY INFO OF ALL CLIENTS
+    q =' select * from bank  '
+    cur.execute(q)
+    disp=cur.fetchall()
+    print(tabulate(disp,  headers=[" Accountno.", "First name", "Last name", "Contact", "Balance", "Deposit", "Deposit Date", "Deposit time", "Withdrawal", "Withdrawal Date", "Withdrawal Time"],tablefmt=("fancy_grid"), colalign=("center",), stralign=("center")))
+   
+    
+
+cur=con.cursor()
+def info_qrcode(n):
+    
+    j=int(input('ENTER ACCOUNT NO. OF CLIENT\t     : '))
+    cur.execute(" select * from bank where account={}".format(j))
+    r=cur.fetchall()
+    R={"ACCOUNTno.  " : r[0][0], "FIRST NAME  " : r[0][1], "LAST NAME   " : r[0][2], "CONTACT    " : r[0][3], "BALANCE    " : r[0][4], "DEPOSIT     " : r[0][5], "DEPOSIT DATE" : r[0][6], "DEPOSIT TIME" : r[0][7], "WITHDRAWAL    " : r[0][8], "WITHDRAWAL DATE" : r[0][9], "WITHDRAWAL TIME" : r[0][10]}
+    a=(tabulate([(k, R[k]) for k in R], tablefmt="grid", numalign="center", stralign="right", colalign=("center",)))
+    print(a)
+    
+    
+
+    qr = qrcode.QRCode(
+        version=10,
+        error_correction=qrcode.constants.ERROR_CORRECT_H,
+        box_size=10,
+        border=6, )
+    qr.add_data(a)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white").convert('RGB')
+    img.save(n+'.png')
+    print(" YOUR GENERATED QRCODE HAS BEEN SAVED ON YOUR DESKTOP ")
+    
+
+
+def insert_loan():                          #FUNCTION TO ADD NEW CLIENT INFO TO THE SYSTEM
+    print("NEW RECORD")
+    print()
+    a=date.today()
+    z=str(a)
+    t = time.localtime()
+    b= time.strftime("%H:%M:%S", t)
+    c='0000-00-00'
+    d='-'
+    n = int(input("Enter ACCOUNT NO. \t\t:"))
+    f_n = int(input("Enter LOAN AMOUNT \t\t:"))
+    l_n = int(input("Enter INTEREST PER ANNUM \t:"))
+    q = int(input("Enter LOAN TERM \t\t:"))
+    g=z[0:3]+str(q+1)+z[4:10]
+    p = int(input("Enter INSTALLMENT AMOUNT \t:"))
+    print("NEW RECORD ADDED")
+    query = "insert into LOANE values({},{},{},'{}',{},'{}',{},{},'{}','{}')".format(n,f_n,l_n,a,q,g,p,p,a,b)
+    cur = con.cursor()
+    cur.execute(query)
+    con.commit()
+
+def transac_loan():
+    a=date.today()
+    t = time.localtime()
+    b= time.strftime("%H:%M:%S", t)
+    acc=int(input("\nENTER ACCOUNT NO.                                       :"))    
+    strnew = float(input('ENTER AMOUNT  \t\t\t\t\t\t:'))
+    print("INSTALLMENT PAID")
+    cur=con.cursor()
+    cur.execute("update loane set latest_installment={}, amount_paid=latest_installment+{}, installment_date='{}', installment_time='{}' where account={} ".format(strnew, strnew, a, b, acc))
+    con.commit()
+
+def disp_sing():
+    b=int(input("ENTER NUNBER OF CLIENTS TO SEARCH :"))
+    for k in range(b):
+        a=int(input("ENTER THE ACCOUNT NUMBER          :"))
+        cur.execute(" select A.account, A.first_name, A.last_name, B.PRINCIPAL_AMOUNT, B.INTREST_RATE, B.DATE_OF_LOAN_OPENING, B.LOAN_TERM, B.DUE_DATE, B.AMOUNT_PAID, B.LATEST_INSTALLMENT, B.INSTALLMENT_DATE, B.INSTALLMENT_TIME from bank as A INNER JOIN loane as B where A.account=B.account and A.account={}".format(a))
+        disp=cur.fetchall()
+        print(tabulate(disp,  headers=[" Accountno.","FIRST NAME","LAST NAME", "PRINCIPAL AMOUNT", "INTEREST RATE", "DATE OF OPENING", "LOAN TERM", "DUE DATE","AMOUNT PAID","LATEST INSTALLMENT","INSTALLMENT DATE", "INSTALLMENT TIME"], tablefmt="fancy_grid" ))
+
+def del_loan():
+    b=int(input("ENTER NUMBER OF CLIENTS TO REMOVE :"))
+    for k in range(b):
+        a=int(input("ENTER CLIENT ACCOUNT NUMBER       :"))
+        cur=con.cursor()
+        cur.execute("delete from loane where account={}".format(a))
+        print("CLIENT INFO REMOVED")
+    
+
+
+def loanmen():
+    query="create table if not exists LOANE (ACCOUNT integer(6)primary key, PRINCIPAL_AMOUNT decimal(20,4), INTREST_RATE decimal(20,4),DATE_OF_LOAN_OPENING DATE, LOAN_TERM integer(3), DUE_DATE DATE, AMOUNT_PAID decimal(20,4), LATEST_INSTALLMENT decimal(20,4), INSTALLMENT_DATE DATE, INSTALLMENT_TIME varchar(20))"
+    cur.execute(query)
+    while True:
+        print("\n\nWELCOME TO LOAN MENU\n")
+        print("1. ADD NEW RECORD\n\n2. DEPOSIT INSTALLMENT\n\n3. SHOW LOAN DATABASE\n\n4. INFO OF ONE INDIVIDUAL CLIENTS\n\n5. DELETE INFO\n\n6. EXIT LOAN MENU")
+        chec=int(input("\nENTER TASK NO. : "))
+        if chec==1:
+                 insert_loan() 
+        elif chec==2:
+            transac_loan()
+        elif chec==3:
+            q =' select * from loane'
+            cur.execute(q)
+            disp=cur.fetchall()
+            print(tabulate(disp,  headers=[" Accountno.", "PRINCIPAL AMOUNT", "INTEREST RATE","DATE OF OPENING", "LOAN TERM", "DUE DATE","AMOUNT PAID","LATEST INSTALLMENT","INSTALLMENT DATE", "INSTALLMENT TIME"]))
+
+        elif chec==4:
+            disp_sing()
+        elif chec==5:
+            del_loan()
+        elif chec==6:
+            break
+
+def new_fd():
+    print("NEW RECORD")
+    print()
+    a=date.today()
+    z=str(a)
+    t = time.localtime()
+    b= time.strftime("%H:%M:%S", t)
+    c='0000-00-00'
+    d='-'
+    n = int(input("Enter ACCOUNT NO.                    :"))
+    l_n = int(input("Enter MONTHLY DEPOSIT AMOUNT         :"))
+    q = float(input("Enter INTETREST RATE                 :"))
+    p = int(input("Enter FD RETURN AMOUNT               :"))
+    d=float(input("Enter PENALTY ON PREMATURE WITHDRAWAL:"))
+    f=math.ceil(p/(12*l_n))
+    g=str(int(z[0:4])+f)+z[4:10]
+    print("NEW RECORD ADDED")
+                                              #A #d.d #d  #dep.d.t #i #r  #m.d #w.p
+    query = "insert into fixed_deposit values({},'{}',{},'{}','{}',{},{},'{}',{})".format(n,a,l_n,a,b,q,p,g,d)
+    cur = con.cursor()
+    cur.execute(query)
+    con.commit()
+         
+def fd_disp():
+    b=int(input("ENTER NUMBER OF CLIENTS TO SEARCH FOR  :"))
+    for k in range(b):
+        a=int(input("ENTER CLIENT ACCOUNT NUMBER            :"))
+        cur=con.cursor()
+        cur.execute("select * from fixed_deposit where account={}".format(a))
+        b=cur.fetchall()
+        print(tabulate(b, headers=[" Accountno.", "DATE OF FIRST DEPOSIT", "LATEST DEPOSIT AMOUNT", "DEPOSIT DATE", "DEPOSIT TIME", "INTEREST RATE", "FD RETURN", "MATURITY DATE", "WITHDRAWAL PENALTY"], tablefmt="fancy_grid"))
+        
+
+def fd_delete():
+    b=int(input("ENTER NUMBER OF CLIENTS TO REMOVE  :"))
+    for k in range(b):
+        a=int(input("ENTER CLIENT ACCOUNT NUMBER        :"))
+        cur=con.cursor()
+        cur.execute("delete from fixed_deposit where account={}".format(a))
+        
+        
+    
+
+def fd_transact():
+    print()
+    a=date.today()
+    t = time.localtime()
+    b= time.strftime("%H:%M:%S", t)
+    acc=int(input("\nENTER ACCOUNT NO.                                       :"))    
+    strnew = float(input('ENTER AMOUNT TO DEPOSIT                                 :'))
+    cur=con.cursor()
+    cur.execute("update fixed_deposit set DEPOSIT_AMOUNT={}, DEPOSIT_DATE='{}', DEPOSIT_TIME='{}' where account={} ".format(strnew,a,b, acc))
+    con.commit()
+    
+
+
+
+def fd():
+    cur=con.cursor()
+    query="create table if not exists FIXED_DEPOSIT (ACCOUNT integer(6)primary key, DATE_OF_FIRST_DEPOSIT DATE, DEPOSIT_AMOUNT decimal(20,4), DEPOSIT_DATE DATE, DEPOSIT_TIME varchar(20), INTREST_RATE decimal(20,4), FD_RETURN integer(20), MATURITY_DATE DATE, WITHDRAWAL_PENALTY decimal(20,4))"
+    cur.execute(query)
+    print("WELCOME TO FD MENU\nPLEASE SELECT THE TASKS")
+    a="1. OPEN NEW FD\n2. SHOW FD INFO OF CLIENT(S)\n3. ENTER TRANSACTION MENU\n4. SHOW FD DATABASE\n5. DELETE RECORD\n6. SHOW OPTIONS AGAIN\n7. EXIT FD MENU"
+    print(a)
+    while True:
+        b=int(input("ENTER TASK NUMBER :"))
+        if b==1:
+            new_fd()
+        elif b==2:
+            fd_disp()
+
+        elif b==3:
+            print()
+            print("WELCOME TO TRANSACTION MENU\nPLEASE ENTER THE ACCOUNT NUMBER FOR THE DEPOSIT")
+            fd_transact()
+            print("THIS AMOUNT HAS BEEN DEPOSITED TO YOUR FIXED DEPOSIT")
+            print()
+
+        elif b==4:
+            cur=con.cursor()
+            cur.execute("select * from fixed_deposit")
+            disp=cur.fetchall()
+            print(tabulate(disp, headers=[" Accountno.", "DATE OF FIRST DEPOSIT", "LATEST DEPOSIT AMOUNT", "DEPOSIT DATE", "DEPOSIT TIME", "INTEREST RATE", "FD RETURN", "MATURITY DATE", "WITHDRAWAL PENALTY"], tablefmt="fancy_grid"))
+        elif b==5:
+            fd_delete()
+            print("DATA REMOVED")
+        elif b==7:
+            break
+
+        elif b==6:
+            print(a)
+
+def delete():
+    b=int(input("ENTER NUMBER OF CLIENTS TO REMOVE  :"))
+    for k in range(b):
+        a=int(input("ENTER CLIENT ACCOUNT NUMBER        :"))
+        cur=con.cursor()
+        cur.execute("delete from BANK where account={}".format(a))
+        print("CLIENT INFO REMOVED")
+    
+
+
+        
+
+
+
+
+
+
+
+
+
+print('\n \n \t \t \t \t \t \t \t \t ',' ', "Welcome To FCC Bank, G.G Nagar Branch, Ranchi")
+print('\n \nPlease select the Task to Perform')
+a="=>1.  OPEN A NEW ACCOUNT \n\n=>2.  FIND DETAILS \n\n=>3.  CHANGE DETAILS \n\n=>4.  TRANSACTION MENU\n\n=>5.  SHOW ALL ACCOUNTS \n\n=>6.  MAKE QR.CODE FOR ACCOUNT \n\n=>7.  REMOVE CLIENT INFO \n\n=>8.  ENTER LOAN MENU \n\n=>9.  VIEW BANKING OPTIONS AGAIN \n\n=>10. ENTER FD MENU \n\n=>11.  EXIT SYSTEM"
+print(a)
+print('\n \n \n \n ')
+c=0
+while True:
+    if c>=0:
+        print(' \n \nENTER 9 TO VIEW BANKING OPTIONS AGAIN  ')
+    c+=1
+    v=int(input('\n \nENTER TASK NO. :'))
+    print('\n')
+    if v==1:
+        insert_data()
+        print('NEW RECORD ADDED')
+
+
+    elif v==3:
+        m=int(input('ENTER NUMBER OF RECORDS TO UPDATE: '))
+        update(m)
+
+    elif v==2:
+        g=int(input('\n\nENTER NUMBER OF CLIENTS TO SEARCH: '))
+        search(g)
+
+    elif v==5:
+        Display()
+
+    elif v==6:
+        name=input('ENTER PREFERRED FILE NAME FOR QR CODE: ')
+        info_qrcode(name)
+
+    elif v==4:
+        print('\nTRANSACTION')    
+        transaction()
+
+    elif v==9:
+        print(a)
+
+    elif v==7:
+        delete()
+
+    elif v==8:
+        print()
+        loanmen()
+
+    elif v==10:
+        fd()
+    
+    elif v==11:
+        end=input('DO YOU WANT TO QUIT THE PROGRAM ?       (y/n) =>  ')
+        if end=='y':
+            break
+
+
+
+
+
+
+
