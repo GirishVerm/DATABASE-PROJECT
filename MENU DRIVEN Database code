@@ -12,8 +12,8 @@ con=mysql.connector.connect(host="localhost", user="root", password="limejuice")
 if con.is_connected:
     print('\t \t \t \t \t \t \t \t \t CONNECTION TO DATABASE SUCCESFUL')
 cur=con.cursor()
-cur.execute(" create database if not exists csprojectfinal")
-cur.execute(" use csprojectfinal")
+cur.execute(" create database if not exists hoo")
+cur.execute(" use hoo")
 cur=con.cursor()
 query="create table if not exists BANK ( ACCOUNT integer(6) primary key, FIRST_NAME varchar(20), LAST_NAME varchar(20), CONTACT integer(8), BALANCE decimal(20,4), DEPOSIT decimal(20,4), DEPOSIT_DATE date, DEPOSIT_TIME varchar(20), WITHDRAWAL decimal(20,4), WITHDRAWAL_DATE date, WITHDRAWAL_TIME varchar(20))"
 cur.execute(query)
@@ -21,26 +21,9 @@ con.commit()
 print('\n \n \t \t \t \t \t \t \t \t \t ',"SYSTEM READY TO PERFORM TASKS")
 
 cur=con.cursor()
-def insert_data():                          #FUNCTION TO ADD NEW CLIENT INFO TO THE SYSTEM
-    print("NEW RECORD ")
-    f=0
-    a=date.today()
-    t = time.localtime()
-    b= time.strftime("%H:%M:%S", t)
-    c='0000-00-00'
-    d='-'
-    print(' ')
-    n = input("Enter ACCOUNT NO. \t\t:")
-    f_n = input("Enter FIRST NAME \t\t:")
-    l_n = input("Enter LAST NAME \t\t:")
-    q = int(input("Enter CELL NO(max:8 no) \t:"))
-    p = float(input("Enter AMOUNT TO DEPOSIT \t:"))
-    cur = con.cursor()
-    query = "insert into BANK values({},'{}','{}',{},{},{},'{}','{}',{},'{}','{}')".format(n, f_n, l_n, q, p, p, a, b, f, c , d)
-    cur.execute(query)
-    con.commit()
 
-def insert_data2():                         #FUNCTION TO ADD NEW CLIENT INFO TO THE SYSTEM
+
+def insert_data():                         #FUNCTION TO ADD NEW CLIENT INFO TO THE SYSTEM
     f=0
     a=date.today()
     t = time.localtime()
@@ -48,7 +31,8 @@ def insert_data2():                         #FUNCTION TO ADD NEW CLIENT INFO TO 
     c='0000-00-00'
     d='-'
     print(' ')
-    n = input("Enter ACCOUNT NO. \t\t:")
+    n = int(input("Enter ACCOUNT NO. \t\t:"))
+    cur=con.cursor()
     cur.execute("select * from bank")
     data=cur.fetchall()
     l=[]
@@ -56,8 +40,11 @@ def insert_data2():                         #FUNCTION TO ADD NEW CLIENT INFO TO 
     while k<len(data):
         l.append(data[k][0])
         k+=1
+    print(l)
+
     while n in l:
-        n=input("Please enter a different accountnumber, this one already exists ! : )
+        n=int(input("Please enter a different accountnumber, this one already exists ! : "))
+        
     f_n = input("Enter FIRST NAME \t\t:")
     l_n = input("Enter LAST NAME \t\t:")
     q = int(input("Enter CELL NO(max:8 no) \t:"))
@@ -373,13 +360,9 @@ while True:
     v=int(input('\n \nENTER TASK NO. :'))
     print('\n')
     if v==1:
-        if zeq=0
-            insert_data()
-            print('NEW RECORD ADDED')
-        if zeq>1:
-            insert_data2()
-            print('NEW RECORD ADDED')
-    
+        insert_data()
+        print('NEW RECORD ADDED')
+           
     elif v==3:
         m=int(input('ENTER NUMBER OF RECORDS TO UPDATE: '))
         update(m)
