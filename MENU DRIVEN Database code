@@ -1,5 +1,3 @@
-#GIRISH VERMA's BANKING SYSTEM CODE.
-
 import math 
 import datetime #module used for date and time
 from datetime import date
@@ -9,11 +7,8 @@ from tabulate import tabulate
 import qrcode
 from PIL import Image
 import mysql.connector
-host1=input("Please Enter the HOST NAME (commonly 'loacalhost'): ")
-user1=input("Please Enter the USER NAME                        : ")
-pass1=input("Please Enter the PASSWORD                         : ")
-    
-con=mysql.connector.connect(host=host1, user=user1, password=pass1)
+
+con=mysql.connector.connect(host="localhost", user="root", password="limejuice")
 if con.is_connected:
     print('\t \t \t \t \t \t \t \t \t CONNECTION TO DATABASE SUCCESFUL')
 cur=con.cursor()
@@ -44,7 +39,33 @@ def insert_data():                          #FUNCTION TO ADD NEW CLIENT INFO TO 
     query = "insert into BANK values({},'{}','{}',{},{},{},'{}','{}',{},'{}','{}')".format(n, f_n, l_n, q, p, p, a, b, f, c , d)
     cur.execute(query)
     con.commit()
-    
+
+def insert_data2():                         #FUNCTION TO ADD NEW CLIENT INFO TO THE SYSTEM
+    f=0
+    a=date.today()
+    t = time.localtime()
+    b= time.strftime("%H:%M:%S", t)
+    c='0000-00-00'
+    d='-'
+    print(' ')
+    n = input("Enter ACCOUNT NO. \t\t:")
+    cur.execute("select * from bank")
+    data=cur.fetchall()
+    l=[]
+    k=0
+    while k<len(data):
+        l.append(data[k][0])
+        k+=1
+    while n in l:
+        n=input("Please enter a different accountnumber, this one already exists ! : )
+    f_n = input("Enter FIRST NAME \t\t:")
+    l_n = input("Enter LAST NAME \t\t:")
+    q = int(input("Enter CELL NO(max:8 no) \t:"))
+    p = float(input("Enter AMOUNT TO DEPOSIT \t:"))
+    cur = con.cursor()
+    query = "insert into BANK values({},'{}','{}',{},{},{},'{}','{}',{},'{}','{}')".format(n, f_n, l_n, q, p, p, a, b, f, c , d)
+    cur.execute(query)
+    con.commit()
 
 def transaction():
     a=date.today()
@@ -338,12 +359,13 @@ def delete():
 
 
 
-print('\n \n \t \t \t \t \t \t \t \t ',' ', "Welcome To FCC Bank")
+print('\n \n \t \t \t \t \t \t \t \t ',' ', "Welcome To FCC Bank, G.G Nagar Branch, Ranchi")
 print('\n \nPlease select the Task to Perform')
 a="=>1.  OPEN A NEW ACCOUNT \n\n=>2.  FIND DETAILS \n\n=>3.  CHANGE DETAILS \n\n=>4.  TRANSACTION MENU\n\n=>5.  SHOW ALL ACCOUNTS \n\n=>6.  MAKE QR.CODE FOR ACCOUNT \n\n=>7.  REMOVE CLIENT INFO \n\n=>8.  ENTER LOAN MENU \n\n=>9.  VIEW BANKING OPTIONS AGAIN \n\n=>10. ENTER FD MENU \n\n=>11.  EXIT SYSTEM"
 print(a)
 print('\n \n \n \n ')
 c=0
+zeq=0
 while True:
     if c>=0:
         print(' \n \nENTER 9 TO VIEW BANKING OPTIONS AGAIN  ')
@@ -351,14 +373,13 @@ while True:
     v=int(input('\n \nENTER TASK NO. :'))
     print('\n')
     if v==1:
-        cur=con.cursor()
-        query="select * from bank"
-        b=cur.fetchall()
-        if b!="Empty set":
+        if zeq=0
             insert_data()
-        print('NEW RECORD ADDED')
-
-
+            print('NEW RECORD ADDED')
+        if zeq>1:
+            insert_data2()
+            print('NEW RECORD ADDED')
+    
     elif v==3:
         m=int(input('ENTER NUMBER OF RECORDS TO UPDATE: '))
         update(m)
