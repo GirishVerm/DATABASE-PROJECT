@@ -1,0 +1,936 @@
+import os
+
+os.system('"pip install tabulate"')
+os.system('"pip install Tabulate"')
+os.system('"pip install DateTime"')
+os.system('"pip install Qrcode[pil]"')
+os.system('"pip install mysql"')
+
+from _datetime import date
+from _datetime import time
+import time
+
+import mysql.connector
+from tabulate import tabulate
+import qrcode
+
+from tkinter import *
+
+import PIL
+from PIL import Image
+
+isclicked = False
+
+global con
+global mac
+
+mac='unlaunched'
+
+def launch():
+
+
+    global con
+    global mac
+    enter = Tk()
+    enter.geometry("300x300")
+    enter.resizable(300, 300)
+    enter.title("LAUNCH BANKING SYSTEM")
+    enter.configure(bg="white")
+
+    input_text1 = StringVar()
+    L1 = Label(enter, text="HOST NAME", font=('Times', 15), bg="white")
+    L1.pack(side=TOP)
+    E1 = Entry(enter, textvariable=input_text1, bd=5)
+    E1.pack()
+
+    input_text2 = StringVar()
+    L2 = Label(enter, text="USER", font=('Times', 15), bg="white")
+    L2.pack(side=TOP)
+    E2 = Entry(enter, textvariable=input_text2, bd=5)
+
+    E2.pack(side=TOP)
+
+    input_text3 = StringVar()
+    L3 = Label(enter, text="PASSWORD", font=('Times', 15), bg="white")
+    L3.pack(side=TOP)
+    E3 = Entry(enter, textvariable=input_text3, bd=5, show='*')
+    E3.pack(side=TOP)
+
+    def assign1():
+        global e1
+        try:
+            e1 = str((E1.get()))
+        except ValueError:
+            pass
+
+        global e2
+        try:
+            e2 = str((E2.get()))
+        except ValueError:
+            pass
+
+        global e3
+        try:
+            e3 = str((E3.get()))
+        except ValueError:
+            pass
+
+        isclicked = True
+        return [e1, e2, e3]
+
+    def check():
+        global mac
+        global con
+        if assign1() != ['', '', '']:
+            hup = assign1()
+            con = mysql.connector.connect(host=hup[0], user=hup[1], password=hup[2])
+            if con.is_connected:
+                print(" connection to database succesfull")
+            cur = con.cursor()
+            cur.execute("create database if not exists GUI")
+            cur.execute("use GUI")
+
+            enter.destroy()
+            mac = 'Launched'
+
+            return con
+
+    Bbb = Button(enter, width=10, height=2, text="LAUNCH", font=('Times', 15), bg="#00C36F", command=check)
+    Bbb.pack()
+
+    enter.mainloop()
+
+def software():
+    win = Tk()
+    win.geometry("550x488")
+    win.resizable(500, 500)
+    win.title(" F.C.C Bank - GGI BANKING SOFTWARE ")
+    win.configure(bg="WHITE")
+
+    def addnew(p, q, r, s, z):
+        f = 0
+        a = date.today()
+        t = time.localtime()
+        b = time.strftime("%H:%M:%S", t)
+        c = '0000-00-00'
+        d = '-'
+        cur = con.cursor()
+        query = "insert into bank values({}, '{}', '{}', {}, {}, {}, '{}', '{}', {}, '{}', '{}')".format(p, q, r, s, z,
+                                                                                                         z,
+                                                                                                         a, b, f, c, d)
+        # "insert into BANK values({},'{}','{}',{},{},{},'{}','{}',{},'{}','{}')".format(n, f_n, l_n, q, p, p, a, b, f, c , d)
+        cur.execute(query)
+        con.commit()
+
+    def insertnew():
+        cur = con.cursor()
+        query = "create table if not exists BANK ( ACCOUNT integer(6) primary key, FIRST_NAME varchar(20), LAST_NAME varchar(20), CONTACT integer(8), BALANCE decimal(20,4), DEPOSIT decimal(20,4), DEPOSIT_DATE date, DEPOSIT_TIME varchar(20), WITHDRAWAL decimal(20,4), WITHDRAWAL_DATE date, WITHDRAWAL_TIME varchar(20))"
+        cur.execute(query)
+        con.commit()
+
+        new = Tk()
+        new.geometry("400x400")
+        new.resizable(300, 300)
+        new.title(" NEW RECORD ")
+
+        input_text1 = StringVar()
+        L1 = Label(new, text="ENTER ACCOUNT NUMBER", font=('Times', 15), bg="white")
+        L1.pack(side=TOP)
+        E1 = Entry(new, textvariable=input_text1, bd=5)
+        E1.pack()
+
+        input_text2 = StringVar()
+        L2 = Label(new, text="ENTER FIRST NAME", font=('Times', 15), bg="white")
+        L2.pack(side=TOP)
+        E2 = Entry(new, textvariable=input_text2, bd=5)
+        E2.pack(side=TOP)
+
+        input_text3 = StringVar()
+        L3 = Label(new, text="ENTER LAST NAME", font=('Times', 15), bg="white")
+        L3.pack(side=TOP)
+        E3 = Entry(new, textvariable=input_text3, bd=5)
+        E3.pack(side=TOP)
+
+        input_text4 = StringVar()
+        L4 = Label(new, text="ENTER CELL PHONE NO. (MAX 8 DIGITS)", font=('Times', 15), bg="white")
+        L4.pack(side=TOP)
+        E4 = Entry(new, textvariable=input_text4, bd=5)
+        E4.pack(side=TOP)
+
+        input_text5 = StringVar()
+        L5 = Label(new, text="ENTER AMOUNT TO DEPOSIT", font=('Times', 15), bg="white")
+        L5.pack(side=TOP)
+        E5 = Entry(new, textvariable=input_text5, bd=5)
+        E5.pack(side=TOP)
+
+        def assign():
+            global n1
+            global n2
+            global n3
+            global n4
+            global n5
+            try:
+                n1 = int((E1.get()))
+            except ValueError:
+                pass
+
+            try:
+                n2 = (E2.get())
+            except ValueError:
+                pass
+
+            try:
+                n3 = (E3.get())
+            except ValueError:
+                pass
+
+            try:
+                n4 = int((E4.get()))
+            except ValueError:
+                pass
+
+            try:
+                n5 = float((E5.get()))
+            except ValueError:
+                pass
+
+            cur = con.cursor()
+            cur.execute("select * from bank")
+            data = cur.fetchall()
+            l = []
+            k = 0
+            while k < len(data):
+                l.append(data[k][0])
+                k += 1
+
+            def error():
+                chec = Tk()
+                chec.geometry("500x100")
+                chec.resizable(100, 100)
+                chec.title(" ERROR ")
+
+                Lchec = Label(chec, text="This account no. is already registered, Please enter a different number",
+                              font=('Times', 10), bg="white")
+                Lchec.pack(side=TOP)
+
+                def close_window():
+                    chec.destroy()
+
+                B = Button(chec, width=10, height=2, text="OKAY", bg="#00C36F", command=close_window, borderwidth=0)
+                B.pack()
+                chec.mainloop()
+
+            while n1 in l:
+                n1 = error()
+
+            addnew(n1, n2, n3, n4, n5)
+
+            def ddone():
+                dun = Tk()
+                dun.geometry("500x100")
+                dun.resizable(100, 100)
+                dun.title(" done ")
+                Lchec = Label(dun, text="NEW RECORD ADDED", font=('Times', 10), bg="white")
+                Lchec.pack(side=TOP)
+
+                def close_window():
+                    dun.destroy()
+                    new.destroy()
+
+                button = Button(dun, text="OKAY", bg="#00C36F", width=10, height=1, command=close_window,
+                                font=('Times', 15))
+                button.pack()
+
+                dun.mainloop()
+
+            ddone()
+
+        B = Button(new, width=10, height=1, bd=1, text="ADD", command=assign, justify='right', bg="#00C36F",
+                   font=('Times', 15))
+        B.pack(side=TOP)
+
+        new.mainloop()
+
+    def sec(a):
+        if a in (0, 1, 2, 3, 4, 5, 6, 7, 8, 9):
+            cur = con.cursor()
+            cur.execute("SELECT * from BANK WHERE ACCOUNT={}".format(a))
+            row = cur.fetchall()
+            return row
+
+    def disp(a):
+        search = Tk()
+        search.geometry("1500x200")
+        search.resizable(300, 300)
+        search.title("FIND")
+        print(tabulate(a,
+                       headers=[" Accountno.", "First name", "Last name", "Contact", "Balance", "Deposit",
+                                "Deposit Date",
+                                "Deposit time", "Withdrawal", "Withdrawal Date", "Withdrawal Time"],
+                       tablefmt=("fancy_grid"), colalign=("center",), stralign=("center")))
+        L1 = Label(search, font=("Courier New", 10), text=tabulate(a, headers=[" Accountno.", "First name", "Last name",
+                                                                               "Contact", "Balance", "Deposit",
+                                                                               "Deposit Date", "Deposit time",
+                                                                               "Withdrawal",
+                                                                               "Withdrawal Date", "Withdrawal Time"],
+                                                                   tablefmt=("fancy_grid"), colalign=("center",),
+                                                                   stralign=("center")))
+        L1.pack(side=TOP)
+        search.mainloop()
+
+    def display():
+        search = Tk()
+        search.geometry("300x200")
+        search.resizable(300, 300)
+        search.title("FIND")
+
+        input_text1 = StringVar()
+        L1 = Label(search, text="ENTER ACCOUNT NUMBER", font=('Times', 15), bg="white")
+        L1.pack(side=TOP)
+        E1 = Entry(search, textvariable=input_text1, bd=5)
+        E1.pack()
+
+        def assign2():
+            try:
+                e1 = int((E1.get()))
+            except ValueError:
+                pass
+
+            disp(sec(e1))
+
+        B = Button(search, width=10, height=2, bg="#00C36F", text="FIND", font=('Times', 15), command=assign2)
+        B.pack(side=TOP)
+
+        search.mainloop()
+
+    def update():
+        l = Tk()
+        l.geometry("200x150")
+        l.resizable(300, 300)
+        l.title("CHOOSE FIELD")
+        l.configure(bg="WHITE")
+
+        L = Label(l, text="   UPDATE", font=('Times', 15), bg="WHITE")
+
+        L.pack(side=TOP)
+
+        def firstname():
+            a = Tk()
+            a.geometry("300x230")
+            a.resizable(300, 300)
+            a.title("CHOOSE FIELD")
+            a.configure(bg="WHITE")
+
+            text = StringVar()
+            L = Label(a, text="ENTER ACCOUNT NUMBER", font=('Times', 15), bg="white")
+            L.pack(side=TOP)
+            E = Entry(a, textvariable=text, bd=5)
+            E.pack(side=TOP)
+
+            text = StringVar()
+            L = Label(a, text="ENTER NEW FIRST NAME", font=('Times', 15), bg="white")
+            L.pack(side=TOP)
+            Ef = Entry(a, textvariable=text, bd=5)
+            Ef.pack(side=TOP)
+
+            def asign():
+
+                global nacc
+                try:
+                    nacc = int((E.get()))
+                except ValueError:
+                    pass
+
+                global nf
+                try:
+                    nf = (Ef.get())
+                except ValueError:
+                    pass
+
+                cur = con.cursor()
+                query = "select First_Name from bank where account={}".format(nacc)
+                cur.execute(query)
+                d = cur.fetchall()
+                d = d[0][0]
+
+                cur = con.cursor()
+                query = "update Bank set first_name='{}' where first_name='{}' and account={}".format(nf, d, nacc)
+                cur.execute(query)
+                con.commit()
+
+                a.destroy()
+                l.destroy()
+
+                def ddone():
+                    dun = Tk()
+                    dun.geometry("200x100")
+                    dun.resizable(100, 100)
+                    dun.title(" done ")
+                    Lchec = Label(dun, text="RECORD UPDATED", font=('Times', 15), bg="white")
+                    Lchec.pack(side=TOP)
+
+                    def close_window():
+                        dun.destroy()
+
+                    button = Button(dun, text="Ok", width=10, height=2, font=('Times', 15), bg="#00C36F",
+                                    command=close_window)
+                    button.pack()
+
+                    dun.mainloop()
+
+                ddone()
+
+            b2 = Button(a, width=10, height=2, bd=1, text="NEXT", font=('Times', 15), bg="#00C36F", command=asign)
+            b2.pack(side=TOP)
+
+            a.mainloop()
+
+        def lastname():
+            a = Tk()
+            a.geometry("300x230")
+            a.resizable(300, 300)
+            a.title("CHOOSE FIELD")
+            a.configure(bg="WHITE")
+
+            text = StringVar()
+            L = Label(a, text="ENTER ACCOUNT NUMBER", font=('Times', 15), bg="white")
+            L.pack(side=TOP)
+            E = Entry(a, textvariable=text, bd=5)
+            E.pack(side=TOP)
+
+            text = StringVar()
+            L = Label(a, text="ENTER NEW LAST NAME", font=('Times', 15), bg="white")
+            L.pack(side=TOP)
+            Ef = Entry(a, textvariable=text, bd=5)
+            Ef.pack(side=TOP)
+
+            def asign():
+
+                global nacc
+                try:
+                    nacc = int((E.get()))
+                except ValueError:
+                    pass
+
+                global nf
+                try:
+                    nf = (Ef.get())
+                except ValueError:
+                    pass
+
+                cur = con.cursor()
+                query = "select last_Name from bank where account={}".format(nacc)
+                cur.execute(query)
+                d = cur.fetchall()
+                d = d[0][0]
+
+                cur = con.cursor()
+                query = "update Bank set last_name='{}' where last_name='{}' and account={}".format(nf, d, nacc)
+                cur.execute(query)
+                con.commit()
+
+                a.destroy()
+                l.destroy()
+
+                def ddone():
+                    dun = Tk()
+                    dun.geometry("200x100")
+                    dun.resizable(100, 100)
+                    dun.title(" done ")
+                    Lchec = Label(dun, text="RECORD UPDATED", font=('Times', 15), bg="white")
+                    Lchec.pack(side=TOP)
+
+                    def close_window():
+                        dun.destroy()
+
+                    button = Button(dun, text="Ok", width=10, height=2, bg="#00C36F", font=('Times', 15),
+                                    command=close_window)
+                    button.pack()
+
+                    dun.mainloop()
+
+                ddone()
+
+            b2 = Button(a, width=10, height=2, bd=1, text="NEXT", bg="#00C36F", font=('Times', 15), command=asign)
+            b2.pack(side=TOP)
+
+            a.mainloop()
+
+        def contact():
+            a = Tk()
+            a.geometry("300x230")
+            a.resizable(300, 300)
+            a.title("CHOOSE FIELD")
+            a.configure(bg="WHITE")
+
+            text = StringVar()
+            L = Label(a, text="ENTER ACCOUNT NUMBER", font=('Times', 15), bg="white")
+            L.pack(side=TOP)
+            E = Entry(a, textvariable=text, bd=5)
+            E.pack(side=TOP)
+
+            text = StringVar()
+            L = Label(a, text="ENTER NEW CONTACT NUMBER", font=('Times', 15), bg="white")
+            L.pack(side=TOP)
+            Ef = Entry(a, textvariable=text, bd=5)
+            Ef.pack(side=TOP)
+
+            def asign():
+
+                global nacc
+                try:
+                    nacc = int((E.get()))
+                except ValueError:
+                    pass
+
+                global nf
+                try:
+                    nf = int((Ef.get()))
+                except ValueError:
+                    pass
+
+                cur = con.cursor()
+                query = "select contact from bank where account={}".format(nacc)
+                cur.execute(query)
+                d = cur.fetchall()
+                d = d[0][0]
+
+                cur = con.cursor()
+                query = "update Bank set contact={} where contact={} and account={}".format(nf, d, nacc)
+                cur.execute(query)
+                con.commit()
+
+                a.destroy()
+                l.destroy()
+
+                def ddone():
+                    dun = Tk()
+                    dun.geometry("200x100")
+                    dun.resizable(100, 100)
+                    dun.title(" done ")
+                    Lchec = Label(dun, text="RECORD UPDATED", font=('Times', 15), bg="white")
+                    Lchec.pack(side=TOP)
+
+                    def close_window():
+                        dun.destroy()
+
+                    button = Button(dun, text="OKAY", bg="#00C36F", width=10, height=2, font=('Times', 15),
+                                    command=close_window)
+                    button.pack()
+
+                    dun.mainloop()
+
+                ddone()
+
+            b2 = Button(a, width=10, height=2, bd=1, text="NEXT", bg="#00C36F", font=('Times', 15), command=asign)
+            b2.pack(side=TOP)
+
+            a.mainloop()
+
+        B1 = Button(l, width=30, height=1, text="FIRST NAME", font=('Times', 15), bg="#00C36F", command=firstname)
+        B1.pack()
+
+        B2 = Button(l, width=30, height=1, text="LAST NAME", font=('Times', 15), bg="#00C36F", command=lastname)
+        B2.pack()
+
+        B3 = Button(l, width=30, height=1, text="CONTACT", font=('Times', 15), bg="#00C36F", command=contact)
+        B3.pack()
+
+        l.mainloop()
+
+    def transaction():
+        l = Tk()
+        l.geometry("400x230")
+        l.resizable(300, 300)
+        l.title("CHOOSE FIELD")
+        l.configure(bg="WHITE")
+
+        L = Label(l, text="   WELCOME TO TRANSACTION MENU", font=('Times', 15), bg="WHITE")
+        L.pack()
+
+        def deposit():
+            a = Tk()
+            a.geometry("300x230")
+            a.resizable(300, 300)
+            a.title("CHOOSE FIELD")
+            a.configure(bg="WHITE")
+
+            text = StringVar()
+            L = Label(a, text="ENTER ACCOUNT NUMBER", font=('Times', 15), bg="WHITE")
+            L.pack(side=TOP)
+            E = Entry(a, textvariable=text, bd=5)
+            E.pack(side=TOP)
+
+            text = StringVar()
+            L = Label(a, text="ENTER AMOUNT TO DEPOSIT", font=('Times', 15), bg="WHITE")
+            L.pack(side=TOP)
+            Ef = Entry(a, textvariable=text, bd=5)
+            Ef.pack(side=TOP)
+
+            def asign():
+
+                global nacc
+                try:
+                    nacc = int((E.get()))
+                except ValueError:
+                    pass
+
+                global nf
+                try:
+                    nf = int((Ef.get()))
+                except ValueError:
+                    pass
+
+                z = date.today()
+                t = time.localtime()
+                b = time.strftime("%H:%M:%S", t)
+
+                cur = con.cursor()
+                query = "update Bank set balance=balance+{}, deposit={}, deposit_date='{}', deposit_time='{}' where account={} ".format(
+                    nf, nf, z, b, nacc)
+                cur.execute(query)
+                con.commit()
+
+                a.destroy()
+                l.destroy()
+
+                def ddone():
+                    dun = Tk()
+                    dun.geometry("200x100")
+                    dun.resizable(100, 100)
+                    dun.title(" done ")
+                    dun.configure(bg="WHITE")
+                    Lchec = Label(dun, text="AMOUNT DEPOSITED", font=('Times', 15), bg="WHITE")
+                    Lchec.pack(side=TOP)
+
+                    def close_window():
+                        dun.destroy()
+
+                    button = Button(dun, text="OKAY", font=('Times', 15), bg="#00C36F", width=10, height=2,
+                                    command=close_window)
+                    button.pack()
+
+                    dun.mainloop()
+
+                ddone()
+
+            b2 = Button(a, width=10, height=2, bd=1, text="NEXT", font=('Times', 15), bg="#00C36F", command=asign)
+            b2.pack(side=TOP)
+
+            a.mainloop()
+
+        def withdraw():
+            a = Tk()
+            a.geometry("300x230")
+            a.resizable(300, 300)
+            a.title("CHOOSE FIELD")
+            a.configure(bg="WHITE")
+
+            text = StringVar()
+            L = Label(a, text="ENTER ACCOUNT NUMBER", font=('Times', 15), bg="WHITE")
+            L.pack(side=TOP)
+            E = Entry(a, textvariable=text, bd=5)
+            E.pack(side=TOP)
+
+            text = StringVar()
+            L = Label(a, text="ENTER AMOUNT TO WITHDRAW", font=('Times', 15), bg="WHITE")
+            L.pack(side=TOP)
+            Ef = Entry(a, textvariable=text, bd=5)
+            Ef.pack(side=TOP)
+
+            def asign():
+
+                global nacc
+                try:
+                    nacc = int((E.get()))
+                except ValueError:
+                    pass
+
+                global nf
+                try:
+                    nf = int((Ef.get()))
+                except ValueError:
+                    pass
+
+                z = date.today()
+                t = time.localtime()
+                b = time.strftime("%H:%M:%S", t)
+
+                cur = con.cursor()
+                query = "update Bank set balance=balance-{}, withdrawal={}, withdrawal_date='{}', withdrawal_time='{}' where account={} ".format(
+                    nf, nf, z, b, nacc)
+                cur.execute(query)
+                con.commit()
+
+                a.destroy()
+                l.destroy()
+
+                def ddone():
+                    dun = Tk()
+                    dun.geometry("250x100")
+                    dun.resizable(100, 100)
+                    dun.title(" done ")
+                    dun.configure(bg="WHITE")
+                    Lchec = Label(dun, text="WITHDRAWN", font=('Times', 15), bg="WHITE")
+                    Lchec.pack(side=TOP)
+
+                    def close_window():
+                        dun.destroy()
+
+                    button = Button(dun, text="OKAY", font=('Times', 15), bg="#00C36F", width=10, height=2,
+                                    command=close_window)
+                    button.pack()
+
+                    dun.mainloop()
+
+                ddone()
+
+            b2 = Button(a, width=10, height=2, bd=1, text="NEXT", font=('Times', 15), bg="#00C36F", command=asign)
+            b2.pack(side=TOP)
+
+            a.mainloop()
+
+        B1 = Button(l, width=30, height=1, text="DEPOSIT", font=('Times', 15), bg="#00C36F", command=deposit)
+        B1.pack()
+
+        B2 = Button(l, width=30, height=1, text="WITHDRAW", font=('Times', 15), bg="#00C36F", command=withdraw)
+        B2.pack()
+
+        l.mainloop()
+
+    def displayall():
+        cr = con.cursor()
+        query = "select * from bank"
+        cr.execute(query)
+        a = cr.fetchall()
+
+        search = Tk()
+        search.geometry("1500x1500")
+        search.resizable(300, 300)
+        search.title("")
+        print(tabulate(a,
+                       headers=[" Accountno.", "First name", "Last name", "Contact", "Balance", "Deposit",
+                                "Deposit Date",
+                                "Deposit time", "Withdrawal", "Withdrawal Date", "Withdrawal Time"],
+                       tablefmt=("fancy_grid"), colalign=("center",), stralign=("center")))
+        L1 = Label(search, font=("Courier New", 10), text=tabulate(a, headers=[" Accountno.", "First name", "Last name",
+                                                                               "Contact", "Balance", "Deposit",
+                                                                               "Deposit Date", "Deposit time",
+                                                                               "Withdrawal",
+                                                                               "Withdrawal Date", "Withdrawal Time"],
+                                                                   tablefmt=("fancy_grid"), colalign=("center",),
+                                                                   stralign=("center")))
+        L1.pack(side=TOP)
+        search.mainloop()
+
+    def qrcodeqq():
+        a = Tk()
+        a.geometry("300x230")
+        a.resizable(300, 300)
+        a.title("CHOOSE FIELD")
+        a.configure(bg="WHITE")
+
+        text = StringVar()
+        L = Label(a, text="ENTER ACCOUNT NUMBER", font=('Times', 15), bg="WHITE")
+        L.pack(side=TOP)
+        E = Entry(a, textvariable=text, bd=5)
+        E.pack(side=TOP)
+
+        def asign():
+
+            global nacc
+            try:
+                nacc = int((E.get()))
+            except ValueError:
+                pass
+
+            cur = con.cursor()
+            cur.execute("select * from bank")
+            data = cur.fetchall()
+            l = []
+            k = 0
+            while k < len(data):
+                l.append(data[k][0])
+                k += 1
+
+            def error():
+                global pa
+                chec = Tk()
+                chec.geometry("500x100")
+                chec.resizable(100, 100)
+                chec.title(" ERROR ")
+                chec.configure(bg="white")
+
+                Lchec = Label(chec, text="This account no. is not registered", font=('Times', 15), bg="WHITE")
+                Lchec.pack(side=TOP)
+
+                def close_window():
+                    chec.destroy()
+
+                B = Button(chec, text="OKAY", font=('Times', 15), bg="WHITE", width=4, height=2, command=close_window)
+                B.pack()
+                chec.mainloop()
+
+            if nacc not in l:
+                error()
+
+            cur = con.cursor()
+            cur.execute(" select * from bank where account={}".format(nacc))
+            r = cur.fetchall()
+            print(r[0][10])
+            R = {"ACCOUNTno.  ": r[0][0], "FIRST NAME  ": r[0][1], "LAST NAME   ": r[0][2], "CONTACT    ": r[0][3],
+                 "BALANCE    ": r[0][4], "DEPOSIT     ": r[0][5], "DEPOSIT DATE": r[0][6], "DEPOSIT TIME": r[0][7],
+                 "WITHDRAWAL    ": r[0][8], "WITHDRAWAL DATE": r[0][9], "WITHDRAWAL TIME": r[0][10]}
+            print(R)
+            f = (tabulate([(k, R[k]) for k in R], tablefmt="grid", numalign="center", stralign="right",
+                          colalign=("center",)))
+            print(f)
+
+            qr = qrcode.QRCode(version=10, error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=10, border=6)
+            qr.add_data(f)
+            qr.make(fit=True)
+            img = qr.make_image(fill_color="black", back_color="white").convert('RGB')
+
+            a.destroy()
+
+            new = Tk()
+            new.geometry("500x230")
+            new.resizable(300, 300)
+            new.title("")
+            new.configure(bg="WHITE")
+
+            text = StringVar()
+            ll = Label(new, text="ENTER FILE NAME FOR QRCODE PNG", font=('Times', 15), bg="WHITE")
+            ll.pack(side=TOP)
+            Ee = Entry(new, textvariable=text, bd=5)
+            Ee.pack(side=TOP)
+
+            def asignd():
+
+                global nacc
+                try:
+                    nacc = (Ee.get())
+                except ValueError:
+                    pass
+
+                p = os.environ['USERPROFILE']+"/Desktop/" + nacc + ".png"
+                img.save(p)
+                new_image = img.resize((700, 700))
+                new_image.save(p)
+
+                new.destroy()
+
+                global s
+                dun = Tk()
+                dun.geometry("700x700")
+                dun.resizable(500, 500)
+                dun.title(nacc + "png")
+
+                c = Canvas(dun, height=2000, width=2000)
+                s = PhotoImage(file=p, master=c)
+                c.create_image(350, 350, image=s)
+
+                c.pack()
+                dun.mainloop()
+
+            b22 = Button(new, width=10, height=2, bd=1, text="NEXT", font=('Times', 15), bg="#00C36F", command=asignd)
+            b22.pack(side=TOP)
+
+            new.mainloop()
+
+        b2 = Button(a, width=10, height=2, bd=1, text="NEXT", font=('Times', 15), bg="#00C36F", command=asign)
+        b2.pack(side=TOP)
+
+        a.mainloop()
+
+    def remove():
+        search = Tk()
+        search.geometry("300x200")
+        search.resizable(300, 300)
+        search.title("REMOVE ACCOUNT")
+        search.configure(bg="WHITE")
+
+        input_text1 = StringVar()
+        L1 = Label(search, text="ENTER ACCOUNT NUMBER", font=('Times', 15), bg="WHITE")
+        L1.pack(side=TOP)
+        E1 = Entry(search, textvariable=input_text1, bd=5)
+        E1.pack()
+
+        def assign2():
+            global e1
+            try:
+                e1 = int((E1.get()))
+            except ValueError:
+                pass
+
+            cur = con.cursor()
+            cur.execute("delete from BANK where account={}".format(e1))
+            con.commit()
+
+            search.destroy()
+
+            def done():
+                dun = Tk()
+                dun.geometry("200x100")
+                dun.resizable(100, 100)
+                dun.title(" DONE ")
+                dun.configure(bg="white")
+
+                Lchec = Label(dun, text="ACCOUNT DELETED", font=('Times', 15), bg="WHITE")
+                Lchec.pack(side=TOP)
+
+                def close_window():
+                    dun.destroy()
+
+                button = Button(dun, text="OKAY", font=('Times', 15), bg="#00C36F", width=10, height=2,
+                                command=close_window)
+                button.pack()
+
+                dun.mainloop()
+
+            done()
+
+        B = Button(search, width=10, height=2, bd=1, text="NEXT", font=('Times', 15), bg="#00C36F", command=assign2)
+        B.pack(side=TOP)
+
+        search.mainloop()
+
+    B1 = Button(win, width=50, height=2, text="NEW ACCOUNT", font=('Times', 15), bg="#00C36F", command=insertnew)
+    B1.pack()
+
+    B2 = Button(win, width=50, height=2, text="FIND CLIENT", font=('Times', 15), bg="#00C36F", command=display, )
+    B2.pack()
+
+    B3 = Button(win, width=50, height=2, text="UPDATE ACCOUNT INFO", font=('Times', 15), bg="#00C36F", command=update, )
+    B3.pack()
+
+    B4 = Button(win, width=50, height=2, text="TRANSACTION MENU", font=('Times', 15), bg="#00C36F",
+                command=transaction, )
+    B4.pack()
+
+    B5 = Button(win, width=50, height=2, text="SHOW ALL ACCOUNTS", font=('Times', 15), bg="#00C36F",
+                command=displayall, )
+    B5.pack()
+
+    B6 = Button(win, width=50, height=2, text="GENERATE QRCODE WITH CLIENT INFO", font=('Times', 15), bg="#00C36F",
+                command=qrcodeqq, )
+    B6.pack()
+
+    B7 = Button(win, width=50, height=2, text="REMOVE ACCOUNT", font=('Times', 15), bg="#00C36F", command=remove, )
+    B7.pack()
+
+    def des():
+        win.destroy()
+
+    B8 = Button(win, width=50, height=2, text="EXIT", font=('Times', 15), bg="#FF6262", command=des, )
+    B8.pack()
+
+    win.mainloop()
+
+
+launch()
+
+if mac=="Launched":
+    software()
+if mac=='unlaunched':
+    quit()
