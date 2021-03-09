@@ -252,7 +252,7 @@ def software():
         new.mainloop()
 
     def sec(a):
-        if a in (0, 1, 2, 3, 4, 5, 6, 7, 8, 9):
+        if type(a) == int:
             cur = con.cursor()
             cur.execute("SELECT * from BANK WHERE ACCOUNT={}".format(a))
             row = cur.fetchall()
@@ -263,6 +263,7 @@ def software():
         search.geometry("1500x200")
         search.resizable(300, 300)
         search.title("FIND")
+        print(a)
         print(tabulate(a,
                        headers=[" Accountno.", "First name", "Last name", "Contact", "Balance", "Deposit",
                                 "Deposit Date",
@@ -278,6 +279,8 @@ def software():
         L1.pack(side=TOP)
         search.mainloop()
 
+        search.mainloop()
+
     def display():
         search = Tk()
         search.geometry("300x200")
@@ -291,12 +294,15 @@ def software():
         E1.pack()
 
         def assign2():
+            global e1
             try:
                 e1 = int((E1.get()))
             except ValueError:
                 pass
 
             disp(sec(e1))
+
+            search.destroy()
 
         B = Button(search, width=10, height=2, bg="#00C36F", text="FIND", font=('Times', 15), command=assign2)
         B.pack(side=TOP)
